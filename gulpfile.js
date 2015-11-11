@@ -13,6 +13,10 @@ var Rx = require('rx'),
   reduce = require('gulp-reduce-file'),
   sortKeys = require('sort-keys'),
   debug = require('debug')('freecc:gulp'),
+  yargs = require('yargs'),
+  concat = require('gulp-concat'),
+  uglify = require('gulp-uglify'),
+  merge = require('merge-stream'),
 
   // react app
   webpack = require('gulp-webpack'),
@@ -38,7 +42,7 @@ var Rx = require('rx'),
 
 Rx.config.longStackSupport = true;
 
-var __DEV__ = process.env.NODE_ENV !== 'production';
+var __DEV__ = !yargs.argv.p;
 var reloadDelay = 1000;
 var reload = sync.reload;
 var paths = {
@@ -67,6 +71,33 @@ var paths = {
     src: './client',
     dest: 'public/js'
   },
+
+  vendorChallenges: [
+    'public/bower_components/jshint/dist/jshint.js',
+    'public/bower_components/chai/chai.js',
+    'public/bower_components/CodeMirror/lib/codemirror.js',
+    'public/bower_components/CodeMirror/addon/edit/closebrackets.js',
+    'public/bower_components/CodeMirror/addon/edit/matchbrackets.js',
+    'public/bower_components/CodeMirror/addon/lint/lint.js',
+    'public/bower_components/CodeMirror/addon/lint/javascript-lint.js',
+    'public/bower_components/CodeMirror/mode/javascript/javascript.js',
+    'public/bower_components/CodeMirror/mode/xml/xml.js',
+    'public/bower_components/CodeMirror/mode/css/css.js',
+    'public/bower_components/CodeMirror/mode/htmlmixed/htmlmixed.js',
+    'public/bower_components/CodeMirror/addon/emmet/emmet.js'
+  ],
+
+  vendorMain: [
+    'public/bower_components/jquery/dist/jquery.min.js',
+    'public/bower_components/bootstrap/dist/js/bootstrap.min.js',
+    'public/bower_components/angular/angular.min.js',
+    'public/bower_components/angular-bootstrap/ui-bootstrap.min.js',
+    'public/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js',
+    'public/bower_components/d3/d3.min.js',
+    'public/bower_components/moment/min/moment.min.js',
+    'public/bower_components/lightbox2/dist/js/lightbox.min.js',
+    'public/bower_components/rxjs/dist/rx.all.min.js'
+  ],
 
   js: [
     'client/main.js',
@@ -208,6 +239,7 @@ gulp.task('pack-client', function() {
       webpackConfig,
       webpackOptions
     )))
+    .pipe(__DEV__ ? gutil.noop() : uglify())
     .pipe(gulp.dest(dest))
     .pipe(rev())
     // copy files to public
@@ -292,7 +324,7 @@ gulp.task('less', function() {
   var dest = paths.css;
   return gulp.src(paths.less)
     .pipe(plumber({ errorHandler: errorHandler }))
-    // copile
+    // compile
     .pipe(less({
       paths: [ path.join(__dirname, 'less', 'includes') ]
     }))
@@ -310,12 +342,52 @@ gulp.task('less', function() {
     .pipe(gulp.dest(paths.manifest));
 });
 
+function getFilesGlob(files) {
+  if (!__DEV__) {
+    return files;
+  }
+  return files.map(function(file) {
+    return file
+      .replace('.min.', '.')
+      // moment breaks the pattern
+      .replace('/min/', '/');
+  });
+}
+
+gulp.task('vendor', ['js'], function() {
+  var manifestName = 'js-manifest.json';
+  var dest = paths.publicJs;
+
+  var vendorFiles = merge(
+    gulp.src(getFilesGlob(paths.vendorMain))
+      .pipe(concat('vendor-main.js')),
+    gulp.src(paths.vendorChallenges)
+      .pipe(__DEV__ ? gutil.noop() : uglify())
+      .pipe(concat('vendor-challenges.js'))
+  );
+
+  return vendorFiles.pipe(gulp.dest(dest))
+    // create registry file
+    .pipe(rev())
+    // copy revisioned assets to dest
+    .pipe(gulp.dest(dest))
+    // create manifest file
+    .pipe(rev.manifest(manifestName))
+    .pipe(delRev(
+      dest,
+      manifestName
+    ))
+    // copy manifest file to dest
+    .pipe(gulp.dest(paths.manifest));
+});
+
 gulp.task('js', function() {
   var manifestName = 'js-manifest.json';
   var dest = paths.publicJs;
 
   return gulp.src(paths.js)
     .pipe(plumber({ errorHandler: errorHandler }))
+    .pipe(__DEV__ ? gutil.noop() : uglify())
     .pipe(gulp.dest(dest))
     // create registry file
     .pipe(rev())
@@ -343,6 +415,7 @@ gulp.task('dependents', ['js'], function() {
 
   return gulp.src(paths.dependents)
     .pipe(plumber({ errorHandler: errorHandler }))
+    .pipe(__DEV__ ? gutil.noop() : uglify())
     .pipe(revReplace({ manifest: manifest }))
     .pipe(gulp.dest(dest))
     .pipe(rev())
@@ -369,7 +442,7 @@ function buildManifest() {
     .pipe(gulp.dest('server/'));
 }
 
-var buildDependents = ['less', 'js', 'dependents'];
+var buildDependents = ['less', 'js', 'dependents', 'vendor'];
 
 gulp.task('build-manifest', buildDependents, function() {
   return buildManifest();
