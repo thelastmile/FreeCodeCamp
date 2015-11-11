@@ -270,8 +270,12 @@ var defaultStatsOptions = {
   errorDetails: false
 };
 
+var webpackCalled = false;
 gulp.task('pack-watch', function(cb) {
-  var called = false;
+  if (webpackCalled) {
+    console.log('webpack watching already runnning');
+    return cb();
+  }
   gulp.src(webpackConfig.entry)
     .pipe(plumber({ errorHandler: errorHandler }))
     .pipe(webpack(Object.assign(
@@ -284,9 +288,9 @@ gulp.task('pack-watch', function(cb) {
         gutil.log(stats.toString(defaultStatsOptions));
       }
 
-      if (!called) {
-        debug('webpack watch completed');
-        called = true;
+      if (!webpackCalled) {
+        debug('webpack init completed');
+        webpackCalled = true;
         cb();
       }
 
@@ -294,7 +298,7 @@ gulp.task('pack-watch', function(cb) {
     .pipe(gulp.dest(webpackConfig.output.path));
 });
 
-gulp.task('pack-watch-manifest', function() {
+gulp.task('pack-watch-manifest', ['pack-watch'], function() {
   var manifestName = 'react-manifest.json';
   var dest = webpackConfig.output.path;
   return gulp.src(dest + '/bundle.js')
