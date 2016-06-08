@@ -2,7 +2,7 @@ window.common = (function(global) {
   const {
     $,
     moment,
-    ga = (() => {}),
+    //ga = (() => {}),
     common = { init: [] }
   } = global;
 
@@ -69,16 +69,16 @@ window.common = (function(global) {
   }
 
   common.showCompletion = function showCompletion() {
-
-    ga(
-      'send',
-      'event',
-      'Challenge',
-      'solved',
-      common.gaName,
-      true
-    );
-
+    /*
+      ga(
+        'send',
+        'event',
+        'Challenge',
+        'solved',
+        common.gaName,
+        true
+      );
+    */
     $('#complete-courseware-dialog').modal('show');
     $('#complete-courseware-dialog .modal-header').click();
 

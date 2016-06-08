@@ -20,7 +20,7 @@ window.common = (function(global) {
     const tail = common.arrayToNewLineString(common.tail);
     const combinedCode = head + code + tail;
 
-    ga('send', 'event', 'Challenge', 'ran-code', common.gaName);
+    //ga('send', 'event', 'Challenge', 'ran-code', common.gaName);
 
     // run checks for unsafe code
     return detectUnsafeCode$(code)

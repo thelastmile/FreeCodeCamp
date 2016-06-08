@@ -24,16 +24,16 @@ window.common = (function(global) {
 </script>
 <link
   rel='stylesheet'
-  href='../lib/animate.css'
+  href='../css/animate.css'
   />
 <link
   rel='stylesheet'
-  href='../lib/bootstrap.min.css'
+  href='../css/bootstrap.min.css'
   />
 
 <link
   rel='stylesheet'
-  href='../lib/font-awesome.min.css'
+  href='../css/font-awesome.min.css'
   />
 <style>
   body { padding: 0px 3px 0px 3px; }
