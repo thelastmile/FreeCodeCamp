@@ -6,8 +6,3 @@ script.
   }
   var common = window.common || { init: [] };
   common.helpRoom = !{JSON.stringify(helpRoom)};
-  document.addEventListener('gitter-sidecar-ready', function(e) {
-    if (window.main) {
-      window.main.chat.createHelpChat(common.helpRoom, '#challenge-help-btn');
-    }
-  });
