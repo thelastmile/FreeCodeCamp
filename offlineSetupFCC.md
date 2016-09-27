@@ -40,7 +40,9 @@ MONGOHQ_URL='mongodb://localhost:27017/freecodecamp'
 ```
 
 *Setting up email login*
+
 NOTE: SIGN UP IS STILL BUGGY, IT TAKES YOU TO AN ERROR PAGE, BUT YOU HAVE SIGNED UP AND CAN NOW SIGN IN
+
 edit server/datasources.local.js and overwrite their mail property with the below:
 
 ```bash
@@ -86,7 +88,8 @@ NODE_ENV=production node server/production-start.js
 gulp
 ```
 
-Now navigate to your browser and open http://localhost:3001
+Now navigate to your browser and open http://localhost:3001.
+
 If the app loads, congratulations - you're all set.
 
 ## Resetting
