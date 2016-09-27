@@ -35,7 +35,9 @@ bower install
 # Populate it with the necessary API keys and secrets:
 cp sample.env .env
 
-# For running locally, make sure .env has MONGOHQ_URL='mongodb://localhost:27017/freecodecamp'
+# To run locally just make sure .env has:
+MONGOHQ_URL='mongodb://localhost:27017/freecodecamp'
+```
 
 *Setting up email login*
 NOTE: SIGN UP IS STILL BUGGY, IT TAKES YOU TO AN ERROR PAGE, BUT YOU HAVE SIGNED UP AND CAN NOW SIGN IN
@@ -61,7 +63,7 @@ edit server/datasources.local.js and overwrite their mail property with the belo
     }
 ```
 
-* Seed the database *
+*Seed the database*
 
 ```bash
 # Start the mongo server in a separate terminal
@@ -73,7 +75,7 @@ mongod
 npm run only-once
 ```
 
-* Start the app *
+*Start the app*
 
 ```bash
 # For production, do the following:
