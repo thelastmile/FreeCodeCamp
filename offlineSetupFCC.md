@@ -27,6 +27,10 @@ npm install -g bower
 
 # Install Bower dependencies
 bower install
+
+
+# Build assets for production
+npm run build
 ```
 
 *Private Environment Variables (API Keys)*
